@@ -28,7 +28,7 @@ public class RunDailyAt12PM {
                     .block();
         }
         catch (Exception e){
-            log.info("Error duo to some (RunDailyAt12PM) " + e);
+            log.info("Error due to some (RunDailyAt12PM) " + e);
         }
     }
 

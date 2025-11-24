@@ -49,14 +49,14 @@ public class ScriptFormCreationService {
     }
 
     public String extractRedirectUrl(String htmlResponse) {
-        // Parse the HTML response
-        Document doc = Jsoup.parse(htmlResponse);
+        // Parsing the HTML response
+        Document docmnt = Jsoup.parse(htmlResponse);
 
-        // Find the <a> tag
-        Element linkElement = doc.selectFirst("a");
+        // Finding the <a> tag
+        Element linkElement = docmnt.selectFirst("a");
 
         if (linkElement != null) {
-            // Get the href attribute
+            // Getting the href attribute
             return linkElement.attr("href");
         } else {
             return "NULL";

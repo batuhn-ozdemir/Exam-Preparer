@@ -1,6 +1,6 @@
 package com.batuhanozdemir.exam_prep_service.security;
 
-import com.batuhanozdemir.exam_prep_service.service.UserServiceImplementation;
+import com.batuhanozdemir.exam_prep_service.service.UserServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,9 +15,9 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class SpringSecurity {
 
-    private final UserServiceImplementation userDetailsService;
+    private final UserServiceImpl userDetailsService;
 
-    public SpringSecurity(UserServiceImplementation userDetailsService) {
+    public SpringSecurity(UserServiceImpl userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
 
@@ -25,18 +25,18 @@ public class SpringSecurity {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http.authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/req/login" , "/req/signup").permitAll() // Allow access to login and register pages
-                        .requestMatchers("/user/**").permitAll()// Protect user endpoints
-                        .anyRequest().permitAll() // Permit other requests if needed
+                        .requestMatchers("/req/login" , "/req/signup").permitAll() // Allowing access to login and register pages
+                        .requestMatchers("/user/**").permitAll()// Protecting user endpoints
+                        .anyRequest().permitAll() // Permitting other requests if needed
                 )
-                .csrf(csrf -> csrf.disable()) // Disable CSRF if not needed, adjust for your use case
+                .csrf(csrf -> csrf.disable()) // Disabling CSRF if not needed, adjust for your use case
                 .formLogin(form -> form
                         .loginPage("/") // Custom login page
-                        .defaultSuccessUrl("/user", true) // Redirect to /user on successful login
+                        .defaultSuccessUrl("/user", true) // Redirecting to /user on successful login
                         .permitAll()
                 )
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED) // Use sessions if needed
+                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED) // Using sessions if needed
                 );
 
         return http.build();

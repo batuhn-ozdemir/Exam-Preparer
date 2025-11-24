@@ -36,7 +36,7 @@ public class GeminiResponseService {
                 }
         );
 
-        //Make API call
+        //Making API call
         QuestionAnswerPOJO response = webClient.post()
                 .uri(geminiApiUrl)
                 .header("Content-Type" , "application/json")
@@ -74,7 +74,7 @@ public class GeminiResponseService {
                 }
         );
 
-        //Make API call
+        //Making API call
         QuestionAnswerPOJO response = webClient.post()
                 .uri(geminiApiUrl)
                 .header("Content-Type" , "application/json")

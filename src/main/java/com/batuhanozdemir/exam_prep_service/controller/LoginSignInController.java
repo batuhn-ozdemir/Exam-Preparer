@@ -19,7 +19,7 @@ public class LoginSignInController {
     @Autowired
     private NewUserService userService;
 
-    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final PasswordEncoder passwdEncoder = new BCryptPasswordEncoder();
 
     @PostMapping("/signup")
     public ResponseEntity<Users> createUser(@RequestBody Users users){
@@ -48,7 +48,7 @@ public class LoginSignInController {
         Users users1 = userService.findByUserEmail(payload.get("userEmail"));
 
         if(users1 != null) {
-            if (passwordEncoder.matches(payload.get("password") , users1.getPassword())) {
+            if (passwdEncoder.matches(payload.get("password") , users1.getPassword())) {
 
                 return new ResponseEntity<>(users1 , HttpStatus.OK);
 
@@ -57,20 +57,15 @@ public class LoginSignInController {
             }
         }
         else {
-
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-
         }
 
     }
-
 
     @GetMapping("/txt")
     public String connected(){
         return "Connected User";
     }
-
-
 
 }
 

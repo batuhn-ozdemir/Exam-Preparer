@@ -11,7 +11,7 @@ public class RunsDailyController {
     @Autowired
     public RunDailyAt12PM runDailyAt12PM;
 
-    // This method will run daily at 12 PM
+    // This will run daily at 12 PM via cron
     @Scheduled(cron = "0 0 12 * * ?", zone = "Asia/Kolkata")
     public void runDailyTask() {
         runDailyAt12PM.runAt12PM();

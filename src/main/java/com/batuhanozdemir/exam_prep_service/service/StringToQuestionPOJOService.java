@@ -9,10 +9,10 @@ import org.springframework.stereotype.Service;
 public class StringToQuestionPOJOService {
 
     public QuestionPOJO convertJsonToPojo(String jsonString) throws JsonProcessingException {
-        // Create ObjectMapper instance
+        // Creating ObjectMapper instance
         ObjectMapper objectMapper = new ObjectMapper();
 
-        // Convert JSON string to QuestionPOJO
+        // Converting JSON string to QuestionPOJO
         return objectMapper.readValue(jsonString, QuestionPOJO.class);
     }
 

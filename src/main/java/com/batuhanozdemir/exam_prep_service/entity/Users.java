@@ -16,7 +16,6 @@ public class Users {
     private ObjectId id;
 
     @NonNull
-    // background = true kısmını sildik
     @Indexed(unique = true)
     private String userEmail;
 
