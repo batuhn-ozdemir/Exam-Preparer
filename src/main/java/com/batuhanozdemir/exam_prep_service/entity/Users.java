@@ -8,20 +8,24 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 
 import java.util.ArrayList;
-import java.util.List;
 
 @Data
 public class Users {
 
     @Id
     private ObjectId id;
+
     @NonNull
-    @Indexed(unique = true , background = true)
+    // background = true kısmını sildik
+    @Indexed(unique = true)
     private String userEmail;
+
     @NonNull
     private String userName;
+
     @NonNull
     private String password;
+
     //User Activity store
     @DBRef
     private ArrayList<ChatEntity> chatEntities = new ArrayList<>();
