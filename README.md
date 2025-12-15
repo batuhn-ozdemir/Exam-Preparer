@@ -1,5 +1,13 @@
 # 🎓 AI Powered Exam Prep Service
 
+<div align="center">
+  <img src="assets/WebScreen.png" alt="App Preview" width="800"/>
+  <br>
+  <em>Backend API Endpoint Interface</em>
+</div>
+
+<br>
+
 Hey there! 👋 This is my backend project designed to make studying a bit easier. It basically takes a topic you want to study, asks **Google Gemini AI** to create questions about it, and then automatically turns them into a **Google Forms** quiz so you can test yourself.
 
 I built this using Spring Boot and some cool integrations like Google Apps Script.
