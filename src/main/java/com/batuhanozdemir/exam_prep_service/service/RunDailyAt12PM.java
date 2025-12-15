@@ -14,8 +14,8 @@ public class RunDailyAt12PM {
 
     public final WebClient webClient;
 
-    public RunDailyAt12PM(WebClient.Builder webClient) {
-        this.webClient = webClient.build();
+    public RunDailyAt12PM() {
+        this.webClient = WebClient.builder().build();
     }
 
     public void runAt12PM(){

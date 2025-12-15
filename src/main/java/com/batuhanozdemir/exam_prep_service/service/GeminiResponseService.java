@@ -4,87 +4,78 @@ import com.batuhanozdemir.exam_prep_service.entity.QuestionAnswerPOJO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-
-import java.util.Map;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 @Service
 public class GeminiResponseService {
-    //Access APIs and URL from local environment
+
     @Value("${gemini.api.url}")
     private String geminiApiUrl;
 
     private final WebClient webClient;
 
-    public GeminiResponseService(WebClient.Builder webClient) {
-        this.webClient = webClient.build();
+    public GeminiResponseService() {
+        this.webClient = WebClient.builder()
+                .defaultHeader("Content-Type", "application/json")
+                .build();
     }
 
-    public QuestionAnswerPOJO getAnswer(String question){
-        //The Format Gemini Get response
-//        {
-//            "contents": [{
-//                  "parts":[
-//                      {"text": "Explain how AI works"}
-//                   ]
-//             }]
-//        }
-        Map<String , Object> requestBody = Map.of(
-                "contents" , new Object[] {
-                        Map.of("parts" , new Object[]{
-                                Map.of("text" , question)
-                        })
-                }
+    public QuestionAnswerPOJO getAnswer(String question) {
+        // Tırnak işaretlerini kaçış karakteriyle düzeltelim ki JSON bozulmasın
+        String safeQuestion = question.replace("\"", "\\\"").replace("\n", " ");
+
+        // 1. JSON'u ELLE OLUŞTURUYORUZ (En Garanti Yöntem)
+        String jsonBody = String.format(
+                "{\"contents\": [{\"parts\": [{\"text\": \"%s\"}]}]}",
+                safeQuestion
         );
 
-        //Making API call
-        QuestionAnswerPOJO response = webClient.post()
-                .uri(geminiApiUrl)
-                .header("Content-Type" , "application/json")
-                .bodyValue(requestBody)
-                .retrieve() //Retrieve execute the request and expect a response
-                .bodyToMono(QuestionAnswerPOJO.class) //Reactive wrapper that is String
-                .block();
-
-        //return response
-        return response;
+        return sendRequest(jsonBody);
     }
 
-    public QuestionAnswerPOJO getAnswer(String question , int noOfQuestion){
-
-        String format = "{\n" +
-                "  \"topic\": \"topic_name\",\n" +
-                "  \"questions\": [\n" +
-                "    {\n" +
-                "      \"text\": \"question 1\",\n" +
-                "      \"choices\": [\"option 1\", \"option2\", \"option3\", \"ooption4\"]\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"text\": \"question 2\",\n" +
-                "      \"choices\": [\"option 1\", \"option 2\", \"option 3\", \"option 4\"]\n" +
-                "    }\n" +
-                "  ],\n" +
-                "  \"correctAnswers\": [\"answer of question 1\", \"answer of question 2\"]\n" +
+    public QuestionAnswerPOJO getAnswer(String topic, int noOfQuestion) {
+        // İstenen JSON format şablonu
+        String formatExample = "{" +
+                "\"topic\": \"...\", " +
+                "\"questions\": [{\"text\": \"...\", \"choices\": [\"...\"]}], " +
+                "\"correctAnswers\": [\"...\"]" +
                 "}";
 
-        Map<String , Object> requestBody = Map.of(
-                "contents" , new Object[] {
-                        Map.of("parts" , new Object[]{
-                                Map.of("text" , "give me "+noOfQuestion+" questions on topic " +question+" in this format"+format +"correctAnswers it contain all answer of above questions.")
-                        })
-                }
+        String prompt = String.format(
+                "Give me %d questions on topic '%s' strictly in this JSON format: %s. Do not add markdown formatting like ```json.",
+                noOfQuestion, topic, formatExample
         );
 
-        //Making API call
-        QuestionAnswerPOJO response = webClient.post()
-                .uri(geminiApiUrl)
-                .header("Content-Type" , "application/json")
-                .bodyValue(requestBody)
-                .retrieve() //Retrieve execute the request and expect a response
-                .bodyToMono(QuestionAnswerPOJO.class) //Reactive wrapper that is String
-                .block();
+        String safePrompt = prompt.replace("\"", "\\\"").replace("\n", " ");
 
-        //return response
-        return response;
+        // JSON Body
+        String jsonBody = String.format(
+                "{\"contents\": [{\"parts\": [{\"text\": \"%s\"}]}]}",
+                safePrompt
+        );
+
+        return sendRequest(jsonBody);
+    }
+
+    private QuestionAnswerPOJO sendRequest(String jsonBody) {
+        try {
+            return webClient.post()
+                    .uri(geminiApiUrl)
+                    .bodyValue(jsonBody) // String olarak yolluyoruz
+                    .retrieve()
+                    .bodyToMono(QuestionAnswerPOJO.class)
+                    .block();
+
+        } catch (WebClientResponseException e) {
+            // --- HATA DETAYINI KONSOLA BAS ---
+            System.err.println("❌ GEMINI HATA VERDİ!");
+            System.err.println("👉 Status Code: " + e.getStatusCode());
+            System.err.println("👉 Google'ın Cevabı: " + e.getResponseBodyAsString());
+            System.err.println("👉 Gönderilen JSON: " + jsonBody);
+            throw e;
+        } catch (Exception e) {
+            System.err.println("❌ Beklenmeyen Hata: " + e.getMessage());
+            throw e;
+        }
     }
 }
-

@@ -6,30 +6,54 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import com.google.auth.oauth2.GoogleCredentials; // Yeni eklenen
+import com.google.auth.oauth2.AccessToken;
+
+import java.io.IOException;
+import java.util.Collections;
 
 @Service
 public class ScriptFormCreationService {
 
-    @Value("${console_google_access_token}")
-    public String accessToken;
+    @Value("${google.credentials.path}")
+    private String credentialsPath;
 
     @Value("${google_app_script_url}")
     public String scriptURL;
 
     public final WebClient webClient;
 
-    public ScriptFormCreationService(WebClient.Builder webClient) {
-        this.webClient = webClient.build();
+    public ScriptFormCreationService() {
+        this.webClient = WebClient.builder().build();
+    }
+
+    private String getAccessToken() {
+        try {
+            // Dosyayı resources klasöründen bulur (örn: src/main/resources/credentials.json)
+            GoogleCredentials credentials = GoogleCredentials.fromStream(
+                    new ClassPathResource(credentialsPath).getInputStream()
+            ).createScoped(Collections.singletonList("https://www.googleapis.com/auth/drive")); // Drive ve Script yetkisi
+
+            credentials.refreshIfExpired();
+            AccessToken token = credentials.getAccessToken();
+            return token.getTokenValue();
+        } catch (IOException e) {
+            throw new RuntimeException("Google Credentials dosyası okunamadı!", e);
+        }
     }
 
     public MessageResponseFromScript getFormURL(QuestionPOJO questionPOJO){
 
+        // Her istekte taze token alıyoruz
+        String dynamicToken = getAccessToken();
+
         String firstResponse = webClient.post()
                 .uri(scriptURL)
                 .header("Content-Type" , "application/json")
-                .header("Authorization" , "Bearer "+accessToken)
+                .header("Authorization" , "Bearer " + dynamicToken) // Dinamik token
                 .bodyValue(questionPOJO)
                 .retrieve()
                 .bodyToMono(String.class)
@@ -45,7 +69,6 @@ public class ScriptFormCreationService {
                 .block();
 
         return secondResponse;
-
     }
 
     public String extractRedirectUrl(String htmlResponse) {
