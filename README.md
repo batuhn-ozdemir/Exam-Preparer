@@ -1,41 +1,63 @@
 # 🎓 AI Powered Exam Prep Service
 
-This project is a Spring Boot-based backend service designed to automate exam preparation processes for students and educators. It leverages **Google Gemini AI** integration to generate topic-based questions and automatically converts them into **Google Forms** quizzes via **Google Apps Script**.
+Hey there! 👋 This is my backend project designed to make studying a bit easier. It basically takes a topic you want to study, asks **Google Gemini AI** to create questions about it, and then automatically turns them into a **Google Forms** quiz so you can test yourself.
 
-## 🚀 Key Features
+I built this using Spring Boot and some cool integrations like Google Apps Script.
 
-* **AI-Driven Question Generation:** Generates question sets (mapped to POJOs) on desired topics and difficulty levels using the Google Gemini model.
-* **Automated Google Form Creation:** Instantly converts generated questions into ready-to-solve online quiz links through a custom Google Apps Script integration.
-* **User & Chat Management:** Stores user chat history and AI interactions securely on MongoDB.
-* **Secure Authentication:** Implements secure registration and login processes using Spring Security and BCrypt.
-* **Reactive External Calls:** Utilizes `WebClient` to perform asynchronous requests to AI and Script services.
-* **HTML Parsing:** Handles redirect responses and data extraction from external services using `Jsoup`.
+## 🚀 What can it do?
+
+* **Ask the AI:** You give a topic and difficulty, and the app uses Gemini to generate questions for you.
+* **Auto-Quiz Maker:** This is the cool part—it sends those questions to a Google Apps Script I wrote, which instantly creates a Google Form link.
+* **Chat History:** It saves your requests and the AI's answers to MongoDB so you don't lose them.
+* **Security:** Basic login/register system using JWT and Spring Security.
+* **Reactive Calls:** I used `WebClient` instead of RestTemplate because it handles external API calls much better.
 
 ## 🛠️ Tech Stack
 
-* **Language:** Java 17+
+Here are the tools and technologies I used:
+
+* **Language:** Java 21 ☕
 * **Framework:** Spring Boot 3.x (Web, Security)
-* **Database:** MongoDB (Spring Data MongoDB)
-* **AI Integration:** Google Gemini API
+* **Database:** MongoDB
+* **AI:** Google Gemini API
 * **Scripting:** Google Apps Script (GAS)
-* **Tools:** Docker, Maven, Lombok, Jsoup, Jackson
-* **Client:** WebClient (Reactive)
+* **Libraries:** Lombok, Jsoup (for parsing HTML responses), Jackson.
+* **Build Tool:** Maven
 
-## ⚙️ Setup and Execution
+## ⚙️ How to Run Locally
 
-Follow the steps below to run the project in your local environment.
+If you want to run this on your machine, just follow these steps.
 
 ### 1. Prerequisites
-* JDK 17 or higher
-* Maven
-* MongoDB (Local installation or Docker)
-* Google AI Studio API Key
+Make sure you have these installed:
 
-### 2. Environment Variables
-To run the project, you must add the following variables to your IDE configurations or an `.env` file:
+* **JDK 21** (Project runs on Java 21)
+* **Maven**
+* **MongoDB** (You can run it locally or use a Docker container)
+
+### 2. Google Cloud Setup (Important!)
+Since this app creates Google Forms, you need permission to access your Google Drive/Forms.
+
+1.  Go to the [Google Cloud Console](https://console.cloud.google.com/).
+2.  Create a project and enable the **Google Forms API** and **Google Drive API**.
+3.  Create a Service Account or OAuth Client ID.
+4.  Download the `credentials.json` file.
+5.  **Place this file** inside the `src/main/resources` folder of the project.
+
+### 3. Environment Variables
+You need to set up a few configurations. You can add these to your `application.properties` file or set them up in your IDE's run configuration.
+
+Here is what you need:
 
 ```properties
-GEMINI_API_KEY=AIzaSyD....
-MONGODB_URI=mongodb://localhost:27017
-# Google Apps Script Deployment URL
-google_app_script_url=[https://script.google.com/macros/s/..../exec](https://script.google.com/macros/s/..../exec)
+# MongoDB Connection
+spring.data.mongodb.uri=mongodb://localhost:27017/exam-prep-db
+
+# Google Gemini API Key (Get this from Google AI Studio)
+GEMINI_API_KEY=AIzaSyD...
+
+# The URL of the deployed Google Apps Script
+GOOGLE_SCRIPT_URL=[https://script.google.com/macros/s/......./exec](https://script.google.com/macros/s/......./exec)
+
+# Path to your credentials file (pointing to resources)
+GOOGLE_APPLICATION_CREDENTIALS=classpath:credentials.json
